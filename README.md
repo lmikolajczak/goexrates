@@ -1,10 +1,10 @@
 ## 💰 goexrates
 
-A foreign exchange rates and currency conversion API. Golang implementation of [fixer.io](http://fixer.io) (Ruby. Data from European Central Bank API.
+A foreign exchange rates and currency conversion API. Golang implementation of [fixer.io](http://fixer.io) (Ruby). Data from European Central Bank API.
 
 The rates are updated daily around 3PM CET.
 
-**Usage**
+### **Usage**
 
 Get the latest foreign exchange reference rates in JSON format.
 
@@ -50,8 +50,12 @@ Response format.
 }
 ```
 
-**Run**
+### **Run**
 
 ```bash
 go run goexrates.go
 ```
+
+### **Important note**
+
+Currently this API isn't available at any domain (it's just proof of concept). I created it for **.go** learning purposes. I will try to publish it later.
