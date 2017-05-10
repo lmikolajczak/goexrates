@@ -45,7 +45,7 @@ Response format.
         "PLN": 4.2173,
         "MYR": 4.7543,
         "USD": 1.0961,
-        ...,
+        "...": "and so on...",
     }
 }
 ```
