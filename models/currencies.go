@@ -119,40 +119,45 @@ func HistoricalRates(baseParam, symbolsParam, dateParam string) (*Currencies, er
 	case base != "" && symbols != "":
 		if strings.Contains(symbols, "EUR") {
 			rows, err = db.Query(`SELECT currency, 
-			rate / (SELECT rate FROM rates WHERE ratedate = (SELECT max(ratedate) FROM rates) 
+			rate / (SELECT rate FROM rates 
+			WHERE ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $3 LIMIT 1) 
 			AND currency = $1) AS rate FROM rates WHERE currency !=$1 
 			AND currency = ANY(string_to_array($2, ',')) 
-			AND ratedate = (SELECT max(ratedate) FROM rates) 
+			AND ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $3 LIMIT 1) 
 			UNION ALL SELECT 'EUR', 1 / (SELECT rate FROM rates 
-			WHERE ratedate = (SELECT max(ratedate) FROM rates) 
-			AND currency = $1)`, base, symbols)
+			WHERE ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $3 LIMIT 1) 
+			AND currency = $1)`, base, symbols, dateParam)
 			if err != nil {
 				return nil, err
 			}
 		} else {
 			rows, err = db.Query(`SELECT currency, 
-			rate / (SELECT rate FROM rates WHERE ratedate = (SELECT max(ratedate) FROM rates) 
+			rate / (SELECT rate FROM rates 
+			WHERE ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $3 LIMIT 1) 
 			AND currency = $1) AS rate FROM rates WHERE currency !=$1 
 			AND currency = ANY(string_to_array($2, ',')) 
-			AND ratedate = (SELECT max(ratedate) FROM rates)`, base, symbols)
+			AND ratedate = (SELECT ratedate FROM rates 
+			WHERE ratedate <= $3 LIMIT 1)`, base, symbols, dateParam)
 			if err != nil {
 				return nil, err
 			}
 		}
 	case base != "" && symbols == "":
 		rows, err = db.Query(`SELECT currency, 
-		rate / (SELECT rate FROM rates WHERE ratedate = (SELECT max(ratedate) FROM rates) 
+		rate / (SELECT rate FROM rates 
+		WHERE ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $2 LIMIT 1) 
 		AND currency = $1) AS rate FROM rates WHERE currency !=$1 
-		AND ratedate = (SELECT max(ratedate) FROM rates) 
+		AND ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $2 LIMIT 1) 
 		UNION ALL SELECT 'EUR', 1 / (SELECT rate FROM rates 
-		WHERE ratedate = (SELECT max(ratedate) FROM rates) AND currency = $1)`, base)
+		WHERE ratedate = (SELECT ratedate FROM rates 
+		WHERE ratedate <= $2 LIMIT 1) AND currency = $1)`, base, dateParam)
 		if err != nil {
 			return nil, err
 		}
 	case base == "" && symbols != "":
 		rows, err = db.Query(`SELECT currency, rate 
 		FROM rates WHERE currency = ANY(string_to_array($1, ',')) 
-		AND ratedate = (SELECT max(ratedate) FROM rates)`, symbols)
+		AND ratedate = (SELECT ratedate FROM rates WHERE ratedate <= $2 LIMIT 1)`, symbols, dateParam)
 		if err != nil {
 			return nil, err
 		}
