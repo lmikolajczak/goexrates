@@ -31,7 +31,7 @@ Request specific exchange rates by setting the symbols or currencies parameter.
 
 ```http
 GET /latest?symbols=USD,GBP
-Host: api.fixer.io
+Host: localhost:3000
 ```
 
 Response format.
@@ -55,6 +55,11 @@ Response format.
 ```bash
 go run goexrates.go
 ```
+
+### TODO
+
+* CORS requests support
+* Script for daily database update (newest data)
 
 ### **Important note**
 
