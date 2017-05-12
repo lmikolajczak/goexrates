@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://user:password@localhost/dbname?sslmode=disable")
+	models.InitDB("postgres://luq:jogabonito13@localhost/goexrates?sslmode=disable")
 
 	router := mux.NewRouter()
 
@@ -23,7 +23,7 @@ func main() {
 	http.ListenAndServe(":3000", loggedRouter)
 }
 
-//Latest : /latest route handler
+// Latest : /latest route handler
 func Latest(w http.ResponseWriter, r *http.Request) {
 	baseParam := r.URL.Query().Get("base")
 	symbolsParam := r.URL.Query().Get("symbols")
@@ -44,7 +44,7 @@ func Latest(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-//Historical : /{date} route handler
+// Historical : /{date} route handler
 func Historical(w http.ResponseWriter, r *http.Request) {
 	baseParam := r.URL.Query().Get("base")
 	symbolsParam := r.URL.Query().Get("symbols")
