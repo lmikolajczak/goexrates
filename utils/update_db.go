@@ -45,19 +45,54 @@ func getECBData(url string) (*ecbCurrencies, *ecbUpdateDate, error) {
 	return &currencies, &updateDate, nil
 }
 
-func updateDb() {
+func updateDb(currencies *ecbCurrencies, updateDate *ecbUpdateDate) error {
 	// save newest data to db
+	// add sql.Open()
+	/*txn, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := txn.Prepare(pq.CopyIn("rates", "currency", "rate", "date"))
+	if err != nil {
+		return err
+	}
+
+	for _, currency := range currencies.Currencies {
+		_, err = stmt.Exec(currency.Currency, currency.Rate, updateDate.Date.Time)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		return err
+	}
+
+	err = stmt.Close()
+	if err != nil {
+		return err
+	}
+
+	err = txn.Commit()
+	if err != nil {
+		return err
+	}*/
+	return nil
 }
 
 func main() {
 	fmt.Println("============ Update DB with newest data ============")
+
 	currencies, date, err := getECBData(url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(date.Date.Time)
-	for _, currency := range currencies.Currencies {
-		fmt.Println(currency.Currency, currency.Rate)
+
+	err = updateDb(currencies, date)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	fmt.Println("============ DB successfully updated ============")
