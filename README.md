@@ -63,4 +63,4 @@ go run goexrates.go
 
 ### **Important note**
 
-Currently this API isn't available at any domain (it's just proof of concept). I created it for **.go** learning purposes. I will try to publish it later.
+Currently this API isn't available at any domain (it's just proof of concept). I created it for **.go** learning purposes. I will try to publish it later with up-to-date database.
