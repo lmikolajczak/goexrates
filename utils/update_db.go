@@ -1,11 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/lib/pq"
 )
 
 const url = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
@@ -46,14 +51,18 @@ func getECBData(url string) (*ecbCurrencies, *ecbUpdateDate, error) {
 }
 
 func updateDb(currencies *ecbCurrencies, updateDate *ecbUpdateDate) error {
-	// save newest data to db
-	// add sql.Open()
-	/*txn, err := db.Begin()
+	db, err := sql.Open("postgres", "postgres://user:password@localhost/dbname?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	txn, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := txn.Prepare(pq.CopyIn("rates", "currency", "rate", "date"))
+	stmt, err := txn.Prepare(pq.CopyIn("rates", "currency", "rate", "ratedate"))
 	if err != nil {
 		return err
 	}
@@ -78,14 +87,44 @@ func updateDb(currencies *ecbCurrencies, updateDate *ecbUpdateDate) error {
 	err = txn.Commit()
 	if err != nil {
 		return err
-	}*/
+	}
+
 	return nil
+}
+
+func checkDbDate(ecbDataDate *ecbUpdateDate) error {
+	db, err := sql.Open("postgres", "postgres://user:password@localhost/dbname?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var dbMaxDate string
+	err = db.QueryRow("SELECT max(ratedate) FROM rates").Scan(&dbMaxDate)
+	switch {
+	case err == sql.ErrNoRows:
+		return err
+	case err != nil:
+		return err
+	default:
+		if ecbDataDate.Date.Time > dbMaxDate {
+			return nil
+		}
+		err = errors.New("Db is already up-to-date")
+		return err
+	}
 }
 
 func main() {
 	fmt.Println("============ Update DB with newest data ============")
+	start := time.Now()
 
 	currencies, date, err := getECBData(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = checkDbDate(date)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,5 +134,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("============ DB successfully updated ============")
+	end := time.Now()
+	execTime := end.Sub(start)
+	fmt.Printf("============ DB successfully updated in %s ==========\n", execTime)
 }
