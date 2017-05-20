@@ -62,7 +62,7 @@ func updateDb(currencies *ecbCurrencies, updateDate *ecbUpdateDate) error {
 		return err
 	}
 
-	stmt, err := txn.Prepare(pq.CopyIn("rates", "currency", "rate", "ratedate"))
+	stmt, err := txn.Prepare(pq.CopyIn("currencies", "iso_code", "rate", "date"))
 	if err != nil {
 		return err
 	}
