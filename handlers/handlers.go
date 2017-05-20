@@ -7,6 +7,7 @@ import (
 
 	"github.com/Luqqk/goexrates/models"
 	"github.com/gorilla/mux"
+	"github.com/shopspring/decimal"
 )
 
 // Latest /latest route controller
@@ -20,6 +21,7 @@ func Latest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	decimal.MarshalJSONWithoutQuotes = true
 	response, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
@@ -48,6 +50,7 @@ func Historical(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	decimal.MarshalJSONWithoutQuotes = true
 	response, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
