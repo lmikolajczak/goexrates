@@ -20,7 +20,7 @@ func Latest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := json.Marshal(currencies)
+	response, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -48,7 +48,7 @@ func Historical(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := json.Marshal(currencies)
+	response, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
