@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Luqqk/goexrates/handlers"
+	"github.com/Luqqk/goexrates/middlewares"
 	"github.com/Luqqk/goexrates/models"
 	"github.com/gorilla/mux"
 )
@@ -13,8 +14,8 @@ func main() {
 	router := mux.NewRouter()
 
 	// Endpoints
-	router.HandleFunc("/latest", handlers.Latest)
-	router.HandleFunc("/{date}", handlers.Historical)
+	router.HandleFunc("/latest", middlewares.CORS(handlers.Latest))
+	router.HandleFunc("/{date}", middlewares.CORS(handlers.Historical))
 
-	http.ListenAndServe(":3000", router)
+	http.ListenAndServe(":3000", middlewares.Log(router))
 }
