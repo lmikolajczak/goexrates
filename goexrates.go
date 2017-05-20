@@ -2,24 +2,19 @@ package main
 
 import (
 	"net/http"
-	"os"
 
-	"goexrates/controllers"
-	"goexrates/models"
-
-	"github.com/gorilla/handlers"
+	"github.com/Luqqk/goexrates/handlers"
+	"github.com/Luqqk/goexrates/models"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	models.InitDB("postgres://luq:jogabonito13@localhost/goexrates?sslmode=disable")
-
 	router := mux.NewRouter()
 
-	router.HandleFunc("/latest", controllers.Latest)
-	router.HandleFunc("/{date}", controllers.Historical)
+	// Endpoints
+	router.HandleFunc("/latest", handlers.Latest)
+	router.HandleFunc("/{date}", handlers.Historical)
 
-	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
-
-	http.ListenAndServe(":3000", loggedRouter)
+	http.ListenAndServe(":3000", router)
 }
