@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://luq:jogabonito13@localhost/goexrates?sslmode=disable")
+	models.InitDB("postgres://user:password@localhost/dbname?sslmode=disable")
 	router := mux.NewRouter()
 
 	// Endpoints

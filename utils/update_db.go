@@ -100,7 +100,7 @@ func checkDbDate(ecbDataDate *ecbUpdateDate) error {
 	defer db.Close()
 
 	var dbMaxDate string
-	err = db.QueryRow("SELECT max(ratedate) FROM rates").Scan(&dbMaxDate)
+	err = db.QueryRow("SELECT max(date) FROM currencies").Scan(&dbMaxDate)
 	switch {
 	case err == sql.ErrNoRows:
 		return err
