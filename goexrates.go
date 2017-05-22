@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://luq:jogabonito13@localhost/goexrates?sslmode=disable")
+	models.InitDB("postgres://user:password@localhost/dbname?sslmode=disable")
 	router := mux.NewRouter()
 
 	// Favicon handler
@@ -21,6 +21,6 @@ func main() {
 	router.HandleFunc("/latest", middlewares.CORS(handlers.Latest))
 	router.HandleFunc("/{date}", middlewares.CORS(handlers.Historical))
 
-	fmt.Println("Server is listening at :3000")
+	fmt.Println("* Running on http://127.0.0.1:3000/")
 	http.ListenAndServe(":3000", middlewares.Log(router))
 }
