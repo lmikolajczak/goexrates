@@ -60,3 +60,10 @@ func Historical(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
 }
+
+// Favicon /favicon.ico route controller
+func Favicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/x-icon")
+	w.Header().Set("Cache-Control", "public, max-age=7776000")
+	http.ServeFile(w, r, "./static/favicon.ico")
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Luqqk/goexrates/handlers"
@@ -10,12 +11,16 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://user:password@localhost/dbname?sslmode=disable")
+	models.InitDB("postgres://luq:jogabonito13@localhost/goexrates?sslmode=disable")
 	router := mux.NewRouter()
 
-	// Endpoints
+	// Favicon handler
+	router.HandleFunc("/favicon.ico", handlers.Favicon)
+
+	// API Endpoints
 	router.HandleFunc("/latest", middlewares.CORS(handlers.Latest))
 	router.HandleFunc("/{date}", middlewares.CORS(handlers.Historical))
 
+	fmt.Println("Server is listening at :3000")
 	http.ListenAndServe(":3000", middlewares.Log(router))
 }
