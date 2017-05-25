@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/Luqqk/goexrates.svg?branch=master)]
-(https://travis-ci.org/Luqqk/goexrates)
+[![Build Status](https://travis-ci.org/Luqqk/goexrates.svg?branch=master)](https://travis-ci.org/Luqqk/goexrates)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Luqqk/goexrates)](https://goreportcard.com/report/github.com/Luqqk/goexrates)
 
