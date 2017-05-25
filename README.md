@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/Luqqk/goexrates)](https://goreportcard.com/report/github.com/Luqqk/goexrates)
+
 ## 💰 goexrates
 
 A foreign exchange rates and currency conversion API. Golang implementation of [fixer.io](http://fixer.io) (Ruby). Data from European Central Bank API.
@@ -62,4 +64,4 @@ go run goexrates.go
 
 ### **Important note**
 
-Currently this API is available [here](http://goexrates.mikolajczakluq.com) but it might change at any time. I created it for **.go** learning purposes.
+Currently this API is available [here](http://goexrates.mikolajczakluq.com) but it might change at any time. I created it for **.go** learning purposes. The API comes with no warranty.

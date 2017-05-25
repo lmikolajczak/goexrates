@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://user:password@localhost/dbname?sslmode=disable")
+	models.InitDB("postgres://user:password@localhost/gdbname?sslmode=disable")
 	router := mux.NewRouter()
 
 	// Favicon handler
