@@ -65,4 +65,4 @@ go run goexrates.go
 
 ### **Important note**
 
-Currently this API is available [here](http://goexrates.mikolajczakluq.com) but it might change at any time. I created it for **.go** learning purposes. The API comes with no warranty.
+This API has been created for **.go** learning purposes and comes with no warranty.
