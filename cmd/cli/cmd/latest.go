@@ -12,9 +12,9 @@ import (
 )
 
 // dailyCmd represents the daily command
-var dailyCmd = &cobra.Command{
-	Use:   "daily",
-	Short: "Fetches and ingests daily exchange rates published by ECB",
+var latestCmd = &cobra.Command{
+	Use:   "latest",
+	Short: "Fetches and ingests latest exchange rates published by ECB",
 	Long: `Fetches data that are published by ECB on daily basis and ingests them 
 into the database.
 
@@ -51,10 +51,10 @@ takes place at 14:15 CET.`,
 }
 
 func init() {
-	fetchCmd.AddCommand(dailyCmd)
+	loadCmd.AddCommand(latestCmd)
 
 	// Flags and configuration settings.
-	dailyCmd.Flags().StringP(
+	latestCmd.Flags().StringP(
 		"url", "u", "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
 		"A url that points to the data. Optional",
 	)

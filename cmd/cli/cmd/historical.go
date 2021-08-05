@@ -49,7 +49,7 @@ Data consist of euro foreign exchange reference rates and go back as far as
 }
 
 func init() {
-	fetchCmd.AddCommand(historicalCmd)
+	loadCmd.AddCommand(historicalCmd)
 
 	// Flags and configuration settings.
 	historicalCmd.Flags().StringP(
