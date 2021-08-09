@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Luqqk/goexrates/internal/data"
 	"github.com/Luqqk/goexrates/internal/jsonlog"
 )
 
@@ -23,6 +24,7 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	db     *sql.DB
+	models data.Models
 }
 
 func (app *application) serve() error {

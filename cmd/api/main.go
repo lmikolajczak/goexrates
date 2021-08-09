@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/Luqqk/goexrates/internal/data"
 	"github.com/Luqqk/goexrates/internal/jsonlog"
 )
 
@@ -42,6 +43,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		db:     db,
+		models: data.NewModels(db),
 	}
 
 	app.exposeMetrics()
