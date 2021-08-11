@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -34,7 +35,31 @@ func (c *CurrencyModel) Insert(currency *Currency) error {
 	)
 }
 
-// Placeholder for fetching currency from the database
-func (c *CurrencyModel) Get(currency *Currency) error {
-	return nil
+// Get for fetching currency with the given id from the database
+func (c *CurrencyModel) Get(id int64) (*Currency, error) {
+	// The Id is always >= 1
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+	// Define the SQL query for retrieving the currency data.
+	query := `SELECT id, code, updated_at, created_at FROM currencies WHERE id = $1`
+	// Declare a Movie struct to hold the data returned by the query.
+	var currency Currency
+	err := c.DB.QueryRow(
+		query, id,
+	).Scan(
+		&currency.Id, &currency.Code, &currency.UpdatedAt, &currency.CreatedAt,
+	)
+	// Handle any errors. If there was no matching currency found, Scan() will return
+	// a sql.ErrNoRows error. We check for this and return custom ErrRecordNotFound
+	// error instead.
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	return &currency, nil
 }
