@@ -13,7 +13,6 @@ var (
 // Create a Models struct which wraps the CurrencyModel.
 type Models struct {
 	Currencies CurrencyModel
-	Rates      RateModel
 }
 
 // For ease of use, we also add a New() method which returns a Models
@@ -21,6 +20,5 @@ type Models struct {
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Currencies: CurrencyModel{DB: db},
-		Rates:      RateModel{DB: db},
 	}
 }

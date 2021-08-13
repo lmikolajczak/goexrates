@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -26,6 +28,11 @@ Data consist of euro foreign exchange reference rates and go back as far as
 			fmt.Println("unable to parse url option")
 			os.Exit(1)
 		}
+		dbDsn, err := cmd.Flags().GetString("database")
+		if err != nil {
+			fmt.Println("unable to parse db option")
+			os.Exit(1)
+		}
 		// Initialize http client with proper timeout.
 		netClient := &http.Client{
 			Timeout: time.Second * 60,
@@ -45,6 +52,19 @@ Data consist of euro foreign exchange reference rates and go back as far as
 		}
 		// Insert data into the database.
 		fmt.Println(rates.Days)
+		// Open database and establish connection.
+		db, err := sql.Open("postgres", dbDsn)
+		if err != nil {
+			fmt.Println("unable to open database")
+			os.Exit(1)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		err = db.PingContext(ctx)
+		if err != nil {
+			fmt.Println("unable to establish database connection")
+			os.Exit(1)
+		}
 	},
 }
 
@@ -55,5 +75,9 @@ func init() {
 	historicalCmd.Flags().StringP(
 		"url", "u", "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
 		"A url that points to the data. Optional",
+	)
+	historicalCmd.Flags().StringP(
+		"database", "d", os.Getenv("EXRATES_DB_DSN"),
+		"A database into which the codes will be inserted. Optional",
 	)
 }

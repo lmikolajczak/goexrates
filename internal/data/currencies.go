@@ -9,7 +9,7 @@ import (
 type Currency struct {
 	Id        int64     `json:"id"`
 	Code      string    `json:"code"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Rate      float64   `json:"rate"` // TODO arbitrary precision e.g github.com/shopspring/decimal
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -23,15 +23,15 @@ func (c *CurrencyModel) Insert(currency *Currency) error {
 	// Define the SQL query for inserting a new record in the currencies table and
 	// returning the system-generated data.
 	query := `
-		INSERT INTO currencies (code) VALUES ($1)
-		RETURNING id, updated_at, created_at`
+		INSERT INTO currencies (code, rate) VALUES ($1, $2)
+		RETURNING id, created_at`
 	// Use the QueryRow() method to execute the SQL query on our connection pool
 	// passing in the currency code as a parameter and scanning the system-generated
-	// id, updated_at and created_at values into the currency struct.
+	// id, and created_at values into the currency struct.
 	return c.DB.QueryRow(
-		query, currency.Code,
+		query, currency.Code, currency.Rate,
 	).Scan(
-		&currency.Id, &currency.UpdatedAt, &currency.CreatedAt,
+		&currency.Id, &currency.CreatedAt,
 	)
 }
 
@@ -42,13 +42,13 @@ func (c *CurrencyModel) Get(id int64) (*Currency, error) {
 		return nil, ErrRecordNotFound
 	}
 	// Define the SQL query for retrieving the currency data.
-	query := `SELECT id, code, updated_at, created_at FROM currencies WHERE id = $1`
+	query := `SELECT id, code, rate, created_at FROM currencies WHERE id = $1`
 	// Declare a Movie struct to hold the data returned by the query.
 	var currency Currency
 	err := c.DB.QueryRow(
 		query, id,
 	).Scan(
-		&currency.Id, &currency.Code, &currency.UpdatedAt, &currency.CreatedAt,
+		&currency.Id, &currency.Code, currency.Rate, &currency.CreatedAt,
 	)
 	// Handle any errors. If there was no matching currency found, Scan() will return
 	// a sql.ErrNoRows error. We check for this and return custom ErrRecordNotFound

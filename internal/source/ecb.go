@@ -2,14 +2,14 @@ package source
 
 import "encoding/xml"
 
-type Rate struct {
-	Iso   string  `xml:"currency,attr"`
-	Value float32 `xml:"rate,attr"`
+type Currency struct {
+	Code  string  `xml:"currency,attr"`
+	Value float64 `xml:"rate,attr"`
 }
 
 type Day struct {
-	Date  string `xml:"time,attr"`
-	Rates []Rate `xml:"Cube"`
+	Date       string     `xml:"time,attr"`
+	Currencies []Currency `xml:"Cube"`
 }
 
 type ECB struct {
