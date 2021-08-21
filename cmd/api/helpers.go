@@ -17,9 +17,6 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	if err != nil {
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	// Append a newline to make it easier to view in terminal applications.
 	js = append(js, '\n')
 	// At this point, we know that we won't encounter any more errors before writing the

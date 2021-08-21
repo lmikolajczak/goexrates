@@ -16,7 +16,7 @@ import (
 // historicalCmd represents the historical command
 var historicalCmd = &cobra.Command{
 	Use:   "historical",
-	Short: "Fetches and ingests daily exchange rates published by ECB",
+	Short: "Fetches and ingests historical exchange rates published by ECB",
 	Long: `Fetches historical data that are published by ECB and ingests them 
 into the database.
 	
