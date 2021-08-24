@@ -15,6 +15,8 @@ func (app *application) routes() *httprouter.Router {
 	// healthcheck and monitoring purposes.
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.Handler(http.MethodGet, "/v1/metrics", expvar.Handler())
+	// Application specific routes
+	router.HandlerFunc(http.MethodGet, "/v1/latest", app.latestHandler)
 
 	// Return the httprouter instance.
 	return router
