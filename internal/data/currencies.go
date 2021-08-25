@@ -65,7 +65,9 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 	return &currency, nil
 }
 
-// GetLatest method which returns a slice of latest rates available in the database.
+// GetLatest method which returns a slice of latest rates available in the database
+// and the date of the rates. It is neccessary because the date when the request is
+// made does not always match the date of the data (weekends, holidays, etc).
 func (c CurrencyModel) GetLatest() ([]*Currency, string, error) {
 	// Construct the SQL query to retrieve all movie records.
 	query := `

@@ -5,7 +5,7 @@ import (
 )
 
 // Declare a handler which writes a response with information about the
-// latest exchange rates available in the database..
+// latest exchange rates available in the database.
 func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	currencies, date, err := app.models.Currencies.GetLatest()
 	if err != nil {
@@ -19,6 +19,7 @@ func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	for _, currency := range currencies {
 		rates[currency.Code] = currency.Rate
 	}
+	// Custom JSON response format
 	env := envelope{
 		"base":  "EUR",
 		"date":  date,
