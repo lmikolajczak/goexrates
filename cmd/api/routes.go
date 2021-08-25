@@ -17,6 +17,7 @@ func (app *application) routes() *httprouter.Router {
 	router.Handler(http.MethodGet, "/v1/metrics", expvar.Handler())
 	// Application specific routes
 	router.HandlerFunc(http.MethodGet, "/v1/latest", app.latestHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/historical/:date", app.historicalHandler)
 
 	// Return the httprouter instance.
 	return router

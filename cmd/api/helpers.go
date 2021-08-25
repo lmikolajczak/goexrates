@@ -2,7 +2,11 @@ package main
 
 import (
 	"encoding/json" // New import
+	"errors"
 	"net/http"
+	"time"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 // Define an envelope type.
@@ -33,4 +37,15 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	w.WriteHeader(status)
 	w.Write(js)
 	return nil
+}
+
+func (app *application) readDateParam(r *http.Request) (time.Time, error) {
+	params := httprouter.ParamsFromContext(r.Context())
+
+	date, err := time.Parse("2006-01-02", params.ByName("date"))
+	if err != nil {
+		return time.Time{}, errors.New("invalid date parameter")
+	}
+
+	return date, nil
 }
