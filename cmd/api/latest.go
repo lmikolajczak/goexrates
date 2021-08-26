@@ -9,10 +9,7 @@ import (
 func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	currencies, date, err := app.models.Currencies.GetLatest()
 	if err != nil {
-		http.Error(
-			w, "The server encountered a problem and could not process your request",
-			http.StatusInternalServerError,
-		)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 	rates := map[string]float64{}
@@ -28,9 +25,6 @@ func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	// Send a JSON response containing the currencies data.
 	err = app.writeJSON(w, http.StatusOK, env, nil)
 	if err != nil {
-		http.Error(
-			w, "The server encountered a problem and could not process your request",
-			http.StatusInternalServerError,
-		)
+		app.serverErrorResponse(w, r, err)
 	}
 }

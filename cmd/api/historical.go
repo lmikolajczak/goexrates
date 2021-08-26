@@ -9,10 +9,7 @@ import (
 func (app *application) historicalHandler(w http.ResponseWriter, r *http.Request) {
 	date, err := app.readDateParam(r)
 	if err != nil {
-		http.Error(
-			w, "The server encountered a problem and could not process your request",
-			http.StatusBadRequest,
-		)
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	// Custom JSON response format
@@ -23,9 +20,6 @@ func (app *application) historicalHandler(w http.ResponseWriter, r *http.Request
 	// Send a JSON response containing the currencies data.
 	err = app.writeJSON(w, http.StatusOK, env, nil)
 	if err != nil {
-		http.Error(
-			w, "The server encountered a problem and could not process your request",
-			http.StatusInternalServerError,
-		)
+		app.serverErrorResponse(w, r, err)
 	}
 }
