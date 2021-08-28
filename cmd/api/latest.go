@@ -7,7 +7,11 @@ import (
 // Declare a handler which writes a response with information about the
 // latest exchange rates available in the database.
 func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
-	currencies, date, err := app.models.Currencies.GetLatest()
+	// Call r.URL.Query() to get the url.Values map containing the query string data.
+	qs := r.URL.Query()
+	codes := app.readCSV(qs, "codes", []string{})
+
+	currencies, date, err := app.models.Currencies.GetLatest(codes)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

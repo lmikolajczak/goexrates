@@ -12,10 +12,15 @@ func (app *application) historicalHandler(w http.ResponseWriter, r *http.Request
 		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
+	// Call r.URL.Query() to get the url.Values map containing the query string data.
+	qs := r.URL.Query()
+	codes := app.readCSV(qs, "codes", []string{})
+
 	// Custom JSON response format
 	env := envelope{
 		"status": "not implemented",
 		"date":   date,
+		"codes":  codes,
 	}
 	// Send a JSON response containing the currencies data.
 	err = app.writeJSON(w, http.StatusOK, env, nil)

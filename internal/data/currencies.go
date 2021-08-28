@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Currency struct {
@@ -44,7 +46,7 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 	}
 	// Define the SQL query for retrieving the currency data.
 	query := `SELECT id, code, rate, created_at FROM currencies WHERE id = $1`
-	// Declare a Movie struct to hold the data returned by the query.
+	// Declare a Currency struct to hold the data returned by the query.
 	var currency Currency
 	err := c.DB.QueryRow(
 		query, id,
@@ -68,18 +70,18 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 // GetLatest method which returns a slice of latest rates available in the database
 // and the date of the rates. It is neccessary because the date when the request is
 // made does not always match the date of the data (weekends, holidays, etc).
-func (c CurrencyModel) GetLatest() ([]*Currency, string, error) {
-	// Construct the SQL query to retrieve all movie records.
+func (c CurrencyModel) GetLatest(codes []string) ([]*Currency, string, error) {
+	// Construct the SQL query to retrieve all currency records.
 	query := `
 		SELECT id, code, rate, created_at FROM currencies
 		WHERE DATE(created_at) = (SELECT MAX(DATE(created_at)) FROM currencies)
-		ORDER BY code`
+		AND (code = ANY($1) OR $1 = '{}') ORDER BY code`
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	// Use QueryContext() to execute the query. This returns a sql.Rows resultset
 	// containing the result.
-	rows, err := c.DB.QueryContext(ctx, query)
+	rows, err := c.DB.QueryContext(ctx, query, pq.Array(codes))
 	if err != nil {
 		return nil, "", err
 	}
@@ -111,7 +113,11 @@ func (c CurrencyModel) GetLatest() ([]*Currency, string, error) {
 	if err = rows.Err(); err != nil {
 		return nil, "", err
 	}
-	date := currencies[0].CreatedAt.Format("2006-01-02")
+	// If any row has been retrieved, check its date
+	date := ""
+	if len(currencies) > 0 {
+		date = currencies[0].CreatedAt.Format("2006-01-02")
+	}
 	// If everything went OK, then return the slice of currencies.
 	return currencies, date, nil
 }
