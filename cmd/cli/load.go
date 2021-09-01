@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/spf13/cobra"
@@ -8,12 +8,10 @@ import (
 var loadCmd = &cobra.Command{
 	Use:   "load",
 	Short: "Load entails commands to load data",
-	Long: `Currently it allows to load:
+	Long: `Load entails commands to load following data into specified database:
 
 * historical exchange rates from ECB
-* daily exchange rates from ECB`,
-	// There's no direct action associated with it
-	// Run: func(cmd *cobra.Command, args []string) {},
+* latest (published daily) exchange rates from ECB`,
 }
 
 func init() {
