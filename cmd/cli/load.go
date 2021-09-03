@@ -4,7 +4,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// fetchCmd represents the fetch command
 var loadCmd = &cobra.Command{
 	Use:   "load",
 	Short: "Load entails commands to load data",
