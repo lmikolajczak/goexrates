@@ -1,12 +1,8 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"encoding/xml"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"time"
 
@@ -27,7 +23,7 @@ Data consist of euro foreign exchange reference rates and are usually updated ar
 daily concertation procedure between central banks across Europe, which normally 
 takes place at 14:15 CET.`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		logFile, err := os.OpenFile("latest.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logFile, err := os.OpenFile("log/latest.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,88 +33,26 @@ takes place at 14:15 CET.`,
 		logFile.Close()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// Record command execution timestamp
+		log.Println("Get latest rates")
 		start := time.Now().Round(time.Millisecond)
-		log.Print("Get latest rates")
-		// Get passed args and options
+
 		url, err := cmd.Flags().GetString("url")
 		if err != nil {
 			log.Fatal(err, nil)
 		}
-		dbDsn, err := cmd.Flags().GetString("database")
+		dsn, err := cmd.Flags().GetString("database")
 		if err != nil {
 			log.Fatal(err, nil)
 		}
-		// Get xml data and decode them (external API call)
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-		if err != nil {
-			log.Fatal(err, nil)
-		}
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			log.Fatal(err, nil)
-		}
-		defer resp.Body.Close()
 
 		var rates source.ECB
-		if err := xml.NewDecoder(resp.Body).Decode(&rates); err != nil {
+		if err := rates.Get(url); err != nil {
 			log.Fatal(err, nil)
 		}
-		// Open database and establish connection.
-		db, err := sql.Open("postgres", dbDsn)
-		if err != nil {
-			log.Fatal(err, nil)
+		if err := rates.Insert(dsn); err != nil {
+			log.Fatal(err)
 		}
-		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		err = db.PingContext(ctx)
-		if err != nil {
-			log.Fatal(err, nil)
-		}
-		// This will always contain only a single day.
-		for _, day := range rates.Days {
-			// Before we insert any latest rates, check if they are not already
-			// in the database. This will allow us to run this command multiple
-			// times within a single day in an idempotent manner.
-			var latestDate string
-			row := db.QueryRow("SELECT MAX(created_at) FROM currencies")
-			err := row.Scan(&latestDate)
-			if err != nil {
-				log.Fatal(err, nil)
-			}
-			if latestDate >= day.Date {
-				log.Print("Rates are up to date")
-				log.Print(
-					fmt.Sprintf(
-						"Done (%v)",
-						time.Since(start).Round(time.Millisecond).String(),
-					),
-				)
-				return
-			}
-
-			tx, err := db.Begin()
-			if err != nil {
-				log.Fatal(err)
-			}
-			stmt, err := tx.Prepare(
-				`INSERT INTO currencies (code, rate, created_at) VALUES ($1, $2, $3)`,
-			)
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, currency := range day.Currencies {
-				_, err := stmt.Exec(currency.Code, currency.Value, day.Date)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-			tx.Commit()
-			log.Print(fmt.Sprintf("Inserted latest data (%v)", day.Date))
-		}
-		log.Print(
+		log.Println(
 			fmt.Sprintf(
 				"Done (%v)",
 				time.Since(start).Round(time.Millisecond).String(),
