@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 )
 
 // Declare a handler which writes a response with information about the
@@ -11,7 +12,7 @@ func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 	codes := app.readCSV(qs, "codes", []string{})
 
-	currencies, date, err := app.models.Currencies.GetLatest(codes)
+	currencies, resultsDate, err := app.models.Currencies.GetRates(time.Time{}, codes)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -22,9 +23,9 @@ func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// Custom JSON response format
 	env := envelope{
-		"base":  "EUR",
-		"date":  date,
-		"rates": rates,
+		"source": "EUR",
+		"date":   resultsDate,
+		"rates":  rates,
 	}
 	// Send a JSON response containing the currencies data.
 	err = app.writeJSON(w, http.StatusOK, env, nil)

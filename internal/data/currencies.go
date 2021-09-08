@@ -67,21 +67,40 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 	return &currency, nil
 }
 
-// GetLatest method which returns a slice of latest rates available in the database
-// and the date of the rates. It is neccessary because the date when the request is
-// made does not always match the date of the data (weekends, holidays, etc).
-func (c CurrencyModel) GetLatest(codes []string) ([]*Currency, string, error) {
-	// Construct the SQL query to retrieve all currency records.
+// GetRates method returns a slice of rates available in the database and date
+// for which they are relevant. Rates can be filtered by date and ISO codes.
+// Returned date may be different than requested one. It is due to the fact
+// that rates are not available e.g for holidays, weekends, etc. If that is the
+// case then this method will return rates for the date that is the closest date
+// in the past to the requested one.
+func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, string, error) {
+	// Default query that retrieves latest rates
 	query := `
-		SELECT id, code, rate, created_at FROM currencies
-		WHERE DATE(created_at) = (SELECT MAX(DATE(created_at)) FROM currencies)
-		AND (code = ANY($1) OR $1 = '{}') ORDER BY code`
+			SELECT id, code, rate, created_at FROM currencies
+			WHERE DATE(created_at) = (SELECT MAX(DATE(created_at)) FROM currencies)
+			AND (code = ANY($1) OR $1 = '{}') ORDER BY code`
+	// In case date has been provided we want to adjust the query
+	if !date.IsZero() {
+		query = `
+			SELECT id, code, rate, created_at FROM currencies
+			WHERE created_at = (
+				SELECT created_at FROM currencies
+				WHERE created_at <= $2
+				ORDER BY created_at DESC LIMIT 1
+			) 
+			AND (code = ANY($1) OR $1 = '{}') ORDER BY code`
+	}
+
+	args := []interface{}{pq.Array(codes)}
+	if !date.IsZero() {
+		args = append(args, date)
+	}
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	// Use QueryContext() to execute the query. This returns a sql.Rows resultset
 	// containing the result.
-	rows, err := c.DB.QueryContext(ctx, query, pq.Array(codes))
+	rows, err := c.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, "", err
 	}
@@ -114,10 +133,10 @@ func (c CurrencyModel) GetLatest(codes []string) ([]*Currency, string, error) {
 		return nil, "", err
 	}
 	// If any row has been retrieved, check its date
-	date := ""
+	resultsDate := ""
 	if len(currencies) > 0 {
-		date = currencies[0].CreatedAt.Format("2006-01-02")
+		resultsDate = currencies[0].CreatedAt.Format("2006-01-02")
 	}
 	// If everything went OK, then return the slice of currencies.
-	return currencies, date, nil
+	return currencies, resultsDate, nil
 }
