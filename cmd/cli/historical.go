@@ -21,7 +21,7 @@ into the database.
 Data consist of euro foreign exchange reference rates and go back as far as
 1999-01-04. Keep in mind that available currencies changed over the years.`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		logFile, err := os.OpenFile("log/historical.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logFile, err := os.OpenFile("logs/historical.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatal(err)
 		}

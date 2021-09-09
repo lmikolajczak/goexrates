@@ -15,10 +15,10 @@ func (app *application) logError(r *http.Request, err error) {
 // The errorResponse() method is a generic helper for sending JSON-formatted error
 // messages to the client with a given status code.
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
-	env := envelope{"error": message}
+	serializer := ErrorSerializer{data: message}
 	// In case of error fall back to sending the client an empty response with a
 	// 500 Internal Server Error status code.
-	err := app.writeJSON(w, status, env, nil)
+	err := app.writeJSON(w, status, serializer.dump(), nil)
 	if err != nil {
 		app.logError(r, err)
 		w.WriteHeader(500)

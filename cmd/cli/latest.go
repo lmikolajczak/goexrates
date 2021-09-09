@@ -23,7 +23,7 @@ Data consist of euro foreign exchange reference rates and are usually updated ar
 daily concertation procedure between central banks across Europe, which normally 
 takes place at 14:15 CET.`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		logFile, err := os.OpenFile("log/latest.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logFile, err := os.OpenFile("logs/latest.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatal(err)
 		}

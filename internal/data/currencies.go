@@ -69,11 +69,11 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 
 // GetRates method returns a slice of rates available in the database and date
 // for which they are relevant. Rates can be filtered by date and ISO codes.
-// Returned date may be different than requested one. It is due to the fact
-// that rates are not available e.g for holidays, weekends, etc. If that is the
-// case then this method will return rates for the date that is the closest date
-// in the past to the requested one.
-func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, string, error) {
+// The date of the rates may be different than requested one, because rates
+// are not available e.g for holidays, weekends, etc. If that is the case then
+// this method will return rates for the date that is the closest date in the
+// past to the requested one.
+func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, error) {
 	// Default query that retrieves latest rates
 	query := `
 			SELECT id, code, rate, created_at FROM currencies
@@ -102,7 +102,7 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, st
 	// containing the result.
 	rows, err := c.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
 	// before GetLatest() returns.
@@ -122,7 +122,7 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, st
 			&currency.CreatedAt,
 		)
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		// Add the Currency struct to the slice.
 		currencies = append(currencies, &currency)
@@ -130,13 +130,8 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, st
 	// When the rows.Next() loop has finished, call rows.Err() to retrieve any error
 	// that was encountered during the iteration.
 	if err = rows.Err(); err != nil {
-		return nil, "", err
-	}
-	// If any row has been retrieved, check its date
-	resultsDate := ""
-	if len(currencies) > 0 {
-		resultsDate = currencies[0].CreatedAt.Format("2006-01-02")
+		return nil, err
 	}
 	// If everything went OK, then return the slice of currencies.
-	return currencies, resultsDate, nil
+	return currencies, nil
 }

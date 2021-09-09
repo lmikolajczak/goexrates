@@ -57,19 +57,24 @@ func (e *ECB) Insert(dsn string) error {
 		return err
 	}
 
+	var max sql.NullString
+	err = db.QueryRow("SELECT MAX(created_at) FROM currencies").Scan(&max)
+	if err != nil {
+		return err
+	}
+
+	var current string
+	if max.Valid {
+		current = max.String
+	}
+
 	for i := range e.Days {
 		// Iterate from oldest to newest to make sure that records are inserted
 		// in a proper order in case there is more than one date to process.
 		// ECB sorts by date by default.
 		day := e.Days[len(e.Days)-1-i]
 
-		var latestDate string
-		row := db.QueryRow("SELECT MAX(created_at) FROM currencies")
-		err := row.Scan(&latestDate)
-		if err != nil {
-			return err
-		}
-		if latestDate >= day.Date {
+		if current >= day.Date {
 			return nil
 		}
 

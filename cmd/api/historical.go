@@ -16,23 +16,14 @@ func (app *application) historicalHandler(w http.ResponseWriter, r *http.Request
 	qs := r.URL.Query()
 	codes := app.readCSV(qs, "codes", []string{})
 
-	currencies, resultsDate, err := app.models.Currencies.GetRates(date, codes)
+	rates, err := app.models.Currencies.GetRates(date, codes)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	rates := map[string]float64{}
-	for _, currency := range currencies {
-		rates[currency.Code] = currency.Rate
-	}
-	// Custom JSON response format
-	env := envelope{
-		"source": "EUR",
-		"date":   resultsDate,
-		"rates":  rates,
-	}
-	// Send a JSON response containing the currencies data.
-	err = app.writeJSON(w, http.StatusOK, env, nil)
+
+	serializer := RatesSerializer{data: rates, source: "EUR"}
+	err = app.writeJSON(w, http.StatusOK, serializer.dump(), nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
