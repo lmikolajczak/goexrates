@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
 )
 
 type Currency struct {
-	Id        int64     `json:"id"`
-	Code      string    `json:"code"`
-	Rate      float64   `json:"rate"` // TODO arbitrary precision e.g github.com/shopspring/decimal
-	CreatedAt time.Time `json:"created_at"`
+	Id        int64           `json:"id"`
+	Code      string          `json:"code"`
+	Rate      decimal.Decimal `json:"rate"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 // Define a CurrencyModel struct type which wraps a sql.DB connection pool.
@@ -51,7 +52,7 @@ func (c CurrencyModel) Get(id int64) (*Currency, error) {
 	err := c.DB.QueryRow(
 		query, id,
 	).Scan(
-		&currency.Id, &currency.Code, currency.Rate, &currency.CreatedAt,
+		&currency.Id, &currency.Code, &currency.Rate, &currency.CreatedAt,
 	)
 	// Handle any errors. If there was no matching currency found, Scan() will return
 	// a sql.ErrNoRows error. We check for this and return custom ErrRecordNotFound
@@ -77,7 +78,7 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, er
 	// Default query that retrieves latest rates
 	query := `
 			SELECT id, code, rate, created_at FROM currencies
-			WHERE DATE(created_at) = (SELECT MAX(DATE(created_at)) FROM currencies)
+			WHERE created_at = (SELECT MAX(created_at) FROM currencies)
 			AND (code = ANY($1) OR $1 = '{}') ORDER BY code`
 	// In case date has been provided we want to adjust the query
 	if !date.IsZero() {
@@ -134,4 +135,18 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, er
 	}
 	// If everything went OK, then return the slice of currencies.
 	return currencies, nil
+}
+
+func (c CurrencyModel) Convert(base string, currencies []*Currency) {
+	mapping := make(map[string]*Currency)
+	for _, currency := range currencies {
+		mapping[currency.Code] = currency
+	}
+
+	if base, found := mapping[base]; found {
+		baseRate := base.Rate
+		for _, currency := range mapping {
+			currency.Rate = currency.Rate.Div(baseRate)
+		}
+	}
 }

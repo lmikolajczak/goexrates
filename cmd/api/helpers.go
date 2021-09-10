@@ -38,15 +38,16 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	return nil
 }
 
-func (app *application) readDateParam(r *http.Request) (time.Time, error) {
-	params := httprouter.ParamsFromContext(r.Context())
-
-	date, err := time.Parse("2006-01-02", params.ByName("date"))
-	if err != nil {
-		return time.Time{}, errors.New("invalid date parameter")
+// The readString() helper returns a string value from the query string, or the provided
+// default value if no matching key could be found.
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	s := qs.Get(key)
+	// If no key exists (or the value is empty) then return the default value.
+	if s == "" {
+		return defaultValue
 	}
 
-	return date, nil
+	return s
 }
 
 // The readCSV() helper reads a string value from the query string and then splits it
@@ -61,4 +62,18 @@ func (app *application) readCSV(qs url.Values, key string, defaultValue []string
 	}
 	// Otherwise parse the value into a []string slice and return it.
 	return strings.Split(csv, ",")
+}
+
+// The readDateParam() helper returns a time.Time value pulled from URL, or the provided
+// default value if no matching param could be found or value could not be converted to
+// a valid time.Time.
+func (app *application) readDateParam(r *http.Request) (time.Time, error) {
+	params := httprouter.ParamsFromContext(r.Context())
+
+	date, err := time.Parse("2006-01-02", params.ByName("date"))
+	if err != nil {
+		return time.Time{}, errors.New("invalid date parameter")
+	}
+
+	return date, nil
 }

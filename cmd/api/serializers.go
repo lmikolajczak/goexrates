@@ -39,8 +39,8 @@ func (hs *HealthCheckSerializer) dump() interface{} {
 }
 
 type RatesSerializer struct {
-	data   []*data.Currency
-	source string
+	data []*data.Currency
+	base string
 }
 
 func (rs *RatesSerializer) dump() interface{} {
@@ -48,18 +48,22 @@ func (rs *RatesSerializer) dump() interface{} {
 	if len(rs.data) > 0 {
 		date = rs.data[0].CreatedAt.Format("2006-01-02")
 	}
-	rates := make(map[string]interface{})
+	rates := make(map[string]float64)
 	for _, c := range rs.data {
-		rates[c.Code] = c.Rate
+		if c.Code != rs.base {
+			rates[c.Code], _ = c.Rate.Round(5).Float64()
+		}
 	}
+	// Drop the base rate (it will be always equal to 1)
+	delete(rates, rs.base)
 
 	return struct {
-		Date   string                 `json:"date"`
-		Rates  map[string]interface{} `json:"rates"`
-		Source string                 `json:"source"`
+		Date  string             `json:"date"`
+		Rates map[string]float64 `json:"rates"`
+		Base  string             `json:"base"`
 	}{
-		Date:   date,
-		Rates:  rates,
-		Source: rs.source,
+		Date:  date,
+		Rates: rates,
+		Base:  rs.base,
 	}
 }
