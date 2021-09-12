@@ -58,12 +58,12 @@ func (rs *RatesSerializer) dump() interface{} {
 	delete(rates, rs.base)
 
 	return struct {
+		Base  string             `json:"base"`
 		Date  string             `json:"date"`
 		Rates map[string]float64 `json:"rates"`
-		Base  string             `json:"base"`
 	}{
+		Base:  rs.base,
 		Date:  date,
 		Rates: rates,
-		Base:  rs.base,
 	}
 }

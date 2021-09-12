@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install bsdmainutils
 WORKDIR /code
 COPY . .
 
-RUN go get ./...
+RUN go get -d ./...
+RUN cd cmd/api && go build -o /go/bin/goexrates-api
+RUN cd cmd/cli && go build -o /go/bin/goexrates-cli
 
 CMD tail -f /dev/null
