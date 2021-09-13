@@ -19,7 +19,7 @@ func (app *application) latestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if base != "EUR" {
-		app.models.Currencies.Convert(base, rates)
+		rates = app.models.Currencies.Convert(base, rates)
 	}
 
 	serializer := RatesSerializer{data: rates, base: base}

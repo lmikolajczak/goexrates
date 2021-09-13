@@ -29,3 +29,17 @@ db/migrations/up: confirm
 db/migrations/down:
 	@echo 'Running down migrations...'
 	migrate -path ./migrations -database postgres://admin:admin@db/exrates?sslmode=disable down
+
+
+## api/build
+.PHONY: api/build
+api/build:
+	@echo 'Building api...'
+	@cd cmd/api && go build -o /go/bin/goexrates-api
+
+
+## cli/build
+.PHONY: cli/build
+cli/build:
+	@echo 'Building cli...'
+	@cd cmd/cli && go build -o /go/bin/goexrates-cli

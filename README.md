@@ -59,10 +59,16 @@ Response format.
 docker compose up -d
 # Enter api container:
 docker exec -it api bash
+# Apply database migrations:
+make db/migrations/up
 # Populate database with rates published by ECB (check goexrates-cli --help):
 goexrates-cli load historical
-# Run the API
+# Run the API:
 goexrates-api
 ```
 
-API's endpoints can be accessed at `localhost:3000` (container's port is published).
+API's endpoints can be accessed at `localhost:3000`. Both API (3000) and database (5432) ports
+are published and can be accessed via localhost:port.
+
+Run `make help` to see all available commands and `goexrates-cli --help` to see more informations
+about additional CLI commands that help to manage common/recurring tasks.

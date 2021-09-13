@@ -137,7 +137,7 @@ func (c CurrencyModel) GetRates(date time.Time, codes []string) ([]*Currency, er
 	return currencies, nil
 }
 
-func (c CurrencyModel) Convert(base string, currencies []*Currency) {
+func (c CurrencyModel) Convert(base string, currencies []*Currency) []*Currency {
 	mapping := make(map[string]*Currency)
 	for _, currency := range currencies {
 		mapping[currency.Code] = currency
@@ -148,5 +148,13 @@ func (c CurrencyModel) Convert(base string, currencies []*Currency) {
 		for _, currency := range mapping {
 			currency.Rate = currency.Rate.Div(baseRate)
 		}
+		// Rates are quoted against EUR by default, if base has been
+		// changed, we need to add EUR to the currencies list
+		currency := Currency{
+			Code: "EUR",
+			Rate: decimal.NewFromInt(1).Div(baseRate),
+		}
+		currencies = append(currencies, &currency)
 	}
+	return currencies
 }
