@@ -1,0 +1,22 @@
+services:
+  api:
+    build: .
+    image: api
+    container_name: api
+    environment:
+      EXRATES_DB_DSN: postgres://admin:admin@db/exrates?sslmode=disable
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/code
+    links:
+      - db
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: exrates
+    ports:
+      - 5432:5432

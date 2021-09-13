@@ -1,9 +1,8 @@
-[![Build Status](https://travis-ci.org/Luqqk/goexrates.svg?branch=master)](https://travis-ci.org/Luqqk/goexrates)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Luqqk/goexrates)](https://goreportcard.com/report/github.com/Luqqk/goexrates)
 
 ## 💰 goexrates
 
-A foreign exchange rates and currency conversion API. Golang implementation of [fixer.io](http://fixer.io) (Ruby). Data from European Central Bank API.
+A foreign exchange rates and currency conversion API that exposes data published by European Central Bank.
 
 The rates are updated daily around 4PM CET.
 
@@ -12,29 +11,29 @@ The rates are updated daily around 4PM CET.
 Get the latest foreign exchange reference rates in JSON format.
 
 ```http
-GET /latest
-Host: exr.mikolajczakluq.com
+GET /v1/latest
+Host: localhost:3000
 ```
 
 Get historical rates for any day since 1999-01-04.
 
 ```http
-GET /2008-03-18
-Host: exr.mikolajczakluq.com
+GET /v1/historical/2008-03-18
+Host: localhost:3000
 ```
 
 Rates are quoted against the Euro by default. Quote against a different currency by setting the base parameter in your request.
 
 ```http
-GET /latest?base=USD
-Host: exr.mikolajczaluq.com
+GET /v1/latest?base=USD
+Host: localhost:3000
 ```
 
-Request specific exchange rates by setting the symbols parameter.
+Request specific exchange rates by setting the codes parameter.
 
 ```http
-GET /latest?symbols=USD,GBP
-Host: exr.mikolajczakluq.com
+GET /v1/latest?codes=USD,GBP
+Host: localhost:3000
 ```
 
 Response format.
@@ -42,13 +41,13 @@ Response format.
 ```json
 {
     "base": "EUR",
-    "date": "2017-05-05",
+    "date": "2021-05-05",
     "rates": {
         "AUD": 1.4832,
         "PLN": 4.2173,
         "MYR": 4.7543,
         "USD": 1.0961,
-        "...": "and so on...",
+        [41 world currencies],
     }
 }
 ```
@@ -56,13 +55,20 @@ Response format.
 ### **Run**
 
 ```bash
-go run goexrates.go
+# Build and start containers:
+docker compose up -d
+# Enter api container:
+docker exec -it api bash
+# Apply database migrations:
+make db/migrations/up
+# Populate database with rates published by ECB (check goexrates-cli --help):
+goexrates-cli load historical
+# Run the API:
+goexrates-api
 ```
 
-### TODO
+API's endpoints can be accessed at `localhost:3000`. Both API (3000) and database (5432) ports
+are published and can be accessed via localhost:port.
 
-* Requests caching
-
-### **Important note**
-
-This API has been created for **.go** learning purposes and comes with no warranty.
+Run `make help` to see all available commands and `goexrates-cli --help` to see more informations
+about additional CLI commands that help to manage common/recurring tasks.
