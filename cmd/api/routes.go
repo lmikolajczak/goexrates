@@ -7,7 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *application) routes() *httprouter.Router {
+func (app *application) routes() http.Handler {
 	// Initialize a new httprouter router instance.
 	router := httprouter.New()
 
@@ -19,6 +19,6 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/v1/latest", app.latestHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/historical/:date", app.historicalHandler)
 
-	// Return the httprouter instance.
-	return router
+	// Return the httprouter instance (it implements http.Handler interface).
+	return app.enableCORS(router)
 }
